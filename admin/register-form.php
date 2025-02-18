@@ -18,8 +18,8 @@ $user = mysqli_fetch_array($result);
         // ทำให้ Password อ่านไม่ออก
         $hash = password_hash($password, PASSWORD_DEFAULT);
 
-        $query = mysqli_query($conn,"INSERT INTO user (email, username, password ) 
-        VALUES ('{$email}', '{$username}' , '{$hash}')") or die ('query failed!');
+        $query = mysqli_query($conn,"INSERT INTO user (email, username, password, user_level, status) 
+        VALUES ('{$email}', '{$username}', '{$hash}', 'admin', 'active')") or die ('query failed!');
 
         if($query){
             $_SESSION['message'] = 'Register Completel';

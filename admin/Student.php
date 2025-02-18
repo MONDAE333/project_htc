@@ -1,4 +1,13 @@
 <?php
+session_start();
+
+// ตรวจสอบว่า session checklogin มีค่าเป็น true หรือไม่
+if (!isset($_SESSION['checklogin']) || $_SESSION['checklogin'] !== true) {
+    $_SESSION['message'] = 'กรุณาเข้าสู่ระบบก่อนเข้าใช้งาน';
+    header("Location: login.php");
+    exit();
+}
+
 if (isset($_GET['status'])) {
     $status = $_GET['status'];
     if ($status == 'success') {
@@ -37,12 +46,56 @@ $result = $conn->query($sql);
         <meta name="description" content="" />
         <meta name="author" content="" />
         <title>Sidenav Light - SB Admin</title>
+        <link href="assets/img/favicon1.png" rel="icon">
         <link href="css/styles.css" rel="stylesheet" />
         <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+                <style>
+                            /* ปรับให้หัวข้อ h1 ดูโดดเด่น */
+                h1 {
+                    font-size: 2.5rem;
+                    font-weight: 600;
+                    color: #333; /* สีเทาเข้มเพื่อให้ดูชัดเจน */
+                    border-bottom: 3px solid #007bff;
+                    padding-bottom: 10px;
+                    margin-bottom: 20px;
+                }
+
+                /* ปรับสีของตาราง */
+                .table th, .table td {
+                    padding: 12px;
+                    text-align: center;
+                    border-bottom: 1px solid #ddd;
+                }
+
+                .table thead {
+                    background-color: #f8f9fa;
+                    font-weight: bold;
+                }
+
+                /* ปรับลักษณะของแผนภูมิ (Chart) */
+                .card-body {
+                    padding: 1.5rem;
+                }
+
+                /* ทำให้กราฟแสดงผลได้ดีในหน้าจอมือถือ */
+                @media (max-width: 768px) {
+                    .card-header {
+                        font-size: 1.2rem;
+                    }
+
+                    .card-body {
+                        padding: 1rem;
+                    }
+                    
+                    #myPieChart, #educationPieChart {
+                        height: 200px;
+                    }
+                }
+
+        </style>
     </head>
     <body class="sb-nav-fixed">
     <?php include 'navbar.php'; ?>
-            </div>
             <div id="layoutSidenav_content">
                 <main>
                     <div class="container-fluid px-4">
@@ -56,9 +109,9 @@ $result = $conn->query($sql);
                                 DataTable Student
                             </div>
                             <div class="card-body">
-                                <div class="container mt-5">
-                                    <h1 class="text-center">Student</h1>
-                                    <table class="table table-striped">
+                                <div class="container">
+                                    <!-- <h1 class="text-center">Student</h1> -->
+                                    <table class="table table-striped" id="datatablesSimple">
                                         <thead>
                                             <tr>
                                                 <th>ID</th>
@@ -69,20 +122,9 @@ $result = $conn->query($sql);
                                                 <th>Phone Number</th>
                                                 <th>Major</th>
                                                 <th>Education Level</th>
+                                                <th></th>
                                             </tr>
                                         </thead>
-                                        <tfoot>
-                                            <tr>
-                                                <th>ID</th>
-                                                <th>Citizen ID</th>
-                                                <th>Prefix</th>
-                                                <th>First Name</th>
-                                                <th>Last Name</th>
-                                                <th>Phone Number</th>
-                                                <th>Major</th>
-                                                <th>Education Level</th>
-                                            </tr>
-                                        </tfoot>
                                         <tbody>
                                             <?php
                                                 if ($result->num_rows > 0) {
@@ -211,19 +253,22 @@ $result = $conn->query($sql);
                     // ตั้งค่าฟิลด์ต่างๆ ในฟอร์ม
                     document.getElementById('id').value = student.id || ''; // ตั้งค่า ID
                     document.getElementById('citizen_id').value = student.citizen_id || '';
-                    
+
                     // ตั้งค่า prefix จากฐานข้อมูล (จะใช้ .value เพื่อเลือกค่า)
                     document.getElementById('prefix').value = student.prefix || '';
-                    
+
                     document.getElementById('first_name').value = student.first_name || '';
                     document.getElementById('last_name').value = student.last_name || '';
                     document.getElementById('phone_number').value = student.phone_number || '';
                     document.getElementById('major').value = student.major || '';
                     document.getElementById('education_level').value = student.education_level || '';
-                    
+
+                    // เรียกฟังก์ชัน fetchMajors() หลังจากตั้งค่า education_level
+                    fetchMajors();
+
                     // ตั้งชื่อ modal ให้เหมาะสม
                     document.getElementById('productModalLabel').innerText = 'แก้ไขข้อมูลนักศึกษา';
-                    
+
                     // เปิด modal โดยใช้ Bootstrap JavaScript
                     var myModal = new bootstrap.Modal(document.getElementById('productModal'));
                     myModal.show(); // เปิด modal
@@ -231,6 +276,7 @@ $result = $conn->query($sql);
                     console.error('Error in openEditForm:', error);
                 }
             }
+
 
 
             function fetchMajors() {

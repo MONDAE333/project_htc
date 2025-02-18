@@ -6,40 +6,40 @@ $data = json_decode(file_get_contents('php://input'), true);
 $product_id = $data['product_id'] ?? null;
 
 if ($product_id) {
-    // เริ่มต้นโดยลบข้อมูลจากตาราง product_sizes
-    $sql = "DELETE FROM product_sizes WHERE product_id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param('i', $product_id);
-
-    if (!$stmt->execute()) {
-        echo json_encode(['success' => false, 'message' => 'ไม่สามารถลบขนาดสินค้าได้']);
-        $stmt->close();
-        $conn->close();
-        exit();
-    }
-
-    // ลบข้อมูลในตาราง products
-    $sql = "DELETE FROM products WHERE product_id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param('i', $product_id);
-
-    if (!$stmt->execute()) {
-        echo json_encode(['success' => false, 'message' => 'ไม่สามารถลบข้อมูลสินค้าได้']);
-        $stmt->close();
-        $conn->close();
-        exit();
-    }
-
-    // ค้นหาชื่อ product_name จากตาราง products
+    // ค้นหา product_name ก่อนลบสินค้า
     $sql = "SELECT product_name FROM products WHERE product_id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param('i', $product_id);
     $stmt->execute();
     $stmt->bind_result($product_name);
     $stmt->fetch();
+    $stmt->close(); // ปิด statement
 
-    // ลบข้อมูลในตาราง categories โดยใช้ product_name ที่ค้นหาได้
+    // ถ้าพบ product_name ให้ดำเนินการลบ
     if ($product_name) {
+        // ลบข้อมูลจากตาราง product_sizes ก่อน
+        $sql = "DELETE FROM product_sizes WHERE product_id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param('i', $product_id);
+        if (!$stmt->execute()) {
+            echo json_encode(['success' => false, 'message' => 'ไม่สามารถลบขนาดสินค้าได้']);
+            $stmt->close();
+            $conn->close();
+            exit();
+        }
+
+        // ลบข้อมูลในตาราง products
+        $sql = "DELETE FROM products WHERE product_id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param('i', $product_id);
+        if (!$stmt->execute()) {
+            echo json_encode(['success' => false, 'message' => 'ไม่สามารถลบข้อมูลสินค้าได้']);
+            $stmt->close();
+            $conn->close();
+            exit();
+        }
+
+        // ลบข้อมูลในตาราง categories โดยใช้ product_name
         $sql = "DELETE FROM categories WHERE category_name = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param('s', $product_name);
@@ -60,4 +60,5 @@ if ($product_id) {
 } else {
     echo json_encode(['success' => false, 'message' => 'ข้อมูลสินค้าไม่ถูกต้อง']);
 }
+
 ?>

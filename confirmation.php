@@ -118,6 +118,7 @@ while ($row = $result->fetch_assoc()) {
         </table>
 
         <form action="process_payment.php" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="total_price" value="<?php echo $total_price; ?>">
             <div class="mb-3">
                 <label>วิธีการชำระเงิน:</label>
                 <div>
@@ -130,6 +131,7 @@ while ($row = $result->fetch_assoc()) {
 
             <div id="qrcode-section" style="display: none;">
                 <p>สแกน QR Code เพื่อชำระเงิน:</p>
+                <p style="font-size:20px;">ชื่อบัญชี : นายกฤตพล วิริยะภูรี</p>
                 <img src="assets/img/qrcode.jpg" alt="QR Code" class="img-fluid qrcode-img">
                 <div class="mt-3">
                     <label>อัปโหลดสลิปโอนเงิน:</label>
@@ -144,13 +146,14 @@ while ($row = $result->fetch_assoc()) {
 
 <!-- Modal สำหรับการแจ้งเตือน -->
 <?php if (isset($_SESSION['error_message']) || isset($_SESSION['success_message'])): ?>
-    <div class="modal fade payment-modal" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="notificationModalLabel">แจ้งเตือน</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
+    <div class="modal fade payment-modal" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="notificationModalLabel">แจ้งเตือน</h5>
+                <!-- ซ่อนปุ่มปิด -->
+                <button type="button" class="btn-close d-none" aria-label="Close"></button>
+            </div>
             <?php if (isset($_SESSION['success_message'])) { ?>
                 <div class="modal-body">
                     <?php
@@ -160,22 +163,23 @@ while ($row = $result->fetch_assoc()) {
                 </div>
                 <div class="modal-footer">
                     <a href="index.php" class="btn btn-primary">กลับไปที่หน้าหลัก</a>
+                    <a href="print_order.php?citizen_id=<?= $citizen_id ?>" class="btn btn-secondary" target="_blank">พิมพ์ใบเสร็จ</a>
                 </div>
             <?php } ?>
-                <?php if (isset($_SESSION['error_message'])) { ?>
+            <?php if (isset($_SESSION['error_message'])) { ?>
                 <div class="modal-body">
                    <?php 
                         echo $_SESSION['error_message'];
                         unset($_SESSION['error_message']);
                     ?>
                 </div>
-                <!-- <div class="modal-footer">
-                    <a href="index.php" class="btn btn-primary">กลับไปที่หน้าหลัก</a>
-                </div> -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">ปิด</button>
+                </div>
             <?php } ?>
-            </div>
         </div>
     </div>
+</div>
 <?php endif; ?>
 
 <script>

@@ -14,16 +14,16 @@ include 'head.php';
 include 'header.php'; 
 include 'condb.php'; // เชื่อมต่อฐานข้อมูล
 
-// กำหนดเงื่อนไขในการแสดงสินค้าตาม major
-$major_conditions = [
-    'ช่างยนต์/ยานยนต์', 
-    'ช่างยนต์/จักรยานยนต์และเครื่องยนต์เล็กอเนกประสงค์', 
-    'ช่างกลโรงงาน/เครื่องมือกล', 
-    'ช่างเชื่อมโลหะ/ผลิตภัณฑ์', 
-    'ช่างไฟฟ้ากำลัง/ไฟฟ้ากำลัง', 
-    'ช่างอิเล็กทรอนิกส์/อิเล็กทรอนิกส์', 
-    'ช่างเมคคาทรอนิกส์/เมคคาทรอนิกส์'
-];
+// ดึงข้อมูลจากตาราง major ที่มีค่า has_file เป็น 1
+$major_query = "SELECT major_name FROM major WHERE has_file = 1";
+$major_result = $conn->query($major_query);
+
+$major_conditions = [];
+if ($major_result->num_rows > 0) {
+    while ($row = $major_result->fetch_assoc()) {
+        $major_conditions[] = $row['major_name'];
+    }
+}
 
 // ถ้า major อยู่ในเงื่อนไขที่กำหนด ให้แสดงสินค้า product_id ตั้งแต่ 1 ถึง 14 ยกเว้น 12
 if (in_array($major, $major_conditions)) {

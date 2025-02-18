@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
     // ดึงข้อมูลจาก payment_status โดยใช้ $citizen_id
-    $sql_payment_status = "SELECT payment_method FROM payment_status WHERE citizen_id = ?";
+    $sql_payment_status = "SELECT payment_method, status FROM payment_status WHERE citizen_id = ?";
     $stmt_payment_status = $conn->prepare($sql_payment_status);
     if (!$stmt_payment_status) {
         echo "Error in preparing payment_status query: " . $conn->error;
@@ -87,17 +87,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // ตรวจสอบว่าเจอข้อมูลหรือไม่
     if ($result_payment_status->num_rows > 0) {
         $payment_data = $result_payment_status->fetch_assoc();
-        // ตรวจสอบ payment_method และตั้งค่า status
+        
+        // ตรวจสอบ payment_method และตั้งค่า $status_payment
         if ($payment_data['payment_method'] == 'transfer') {
-            $status = "โอนเงิน";
-        } else if ($payment_data['payment_method'] == 'cash') {
-            $status = "เงินสด";
+            $status_payment = "โอนเงิน";
+        } elseif ($payment_data['payment_method'] == 'cash') {
+            $status_payment = "เงินสด";
         } else {
-            $status = "ไม่ทราบ";
+            $status_payment = "ไม่พบข้อมูลการชำระเงิน";
+        }
+        
+        // ตรวจสอบ status และตั้งค่า $status
+        if ($payment_data['status'] === 'pending') {
+            $status = "รอดำเนินการ";
+        } elseif ($payment_data['status'] === 'paid') {
+            $status = "ชำระเงินแล้ว";
+        } elseif ($payment_data['status'] === 'failed') {
+            $status = "ชำระเงินล้มเหลว";
+        } elseif ($payment_data['status'] === 'completed') {
+            $status = "ชำระเงินเสร็จสมบูรณ์";
+        } else {
+            $status = "สถานะไม่ทราบ";
         }
     } else {
-        $status = "ไม่พบข้อมูลการชำระเงิน";
+        $status_payment = "ไม่พบข้อมูลการชำระเงิน";
+        $status = "ไม่พบสถานะ";
     }
+
 ?>
 
 <!DOCTYPE html>
@@ -246,6 +262,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         transform: translateY(0); /* กลับมาตำแหน่งเดิม */
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* เงาปกติ */
     }
+    
+    .status.pending {
+    color: orange;
+    }
+
+    .status.paid {
+        color: green;
+    }
+
+    .status.failed {
+        color: red;
+    }
+
+    .status.completed {
+        color: blue;
+    }
+
     </style>
 </head>
 <body>
@@ -262,13 +295,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <?php if (isset($student)): ?>
             <div class="student-info">
                 <h3>ข้อมูลผู้ใช้</h3>
-                <p>รหัสประชาชน: <?php echo $student['citizen_id']; ?></p>
-                <p>คำนำหน้าชื่อ: <?php echo $student['prefix']; ?></p>
-                <p>ชื่อจริง: <?php echo $student['first_name']; ?></p>
-                <p>นามสกุล: <?php echo $student['last_name']; ?></p>
-                <p>เบอร์โทร: <?php echo $student['phone_number']; ?></p>
-                <p>สาขา: <?php echo $student['major']; ?></p>
-                <p>ชำระโดย : <?php echo $status; ?></p> <!-- แสดงข้อมูลสถานะการชำระเงิน -->
+                <p>รหัสประชาชน : <?php echo $student['citizen_id']; ?></p>
+                <p>คำนำหน้าชื่อ : <?php echo $student['prefix']; ?></p>
+                <p>ชื่อจริง : <?php echo $student['first_name']; ?></p>
+                <p>นามสกุล : <?php echo $student['last_name']; ?></p>
+                <p>เบอร์โทร : <?php echo $student['phone_number']; ?></p>
+                <p>สาขา : <?php echo $student['major']; ?></p>
+                <p>ชำระโดย : <?php echo $status_payment; ?></p> <!-- แสดงข้อมูลสถานะการชำระเงิน -->
+                <p>สถานะการตรวจสอบ : <span class="status <?php echo strtolower($status); ?>"><?php echo $status; ?></span></p>
             </div>
             
             <!-- แสดงข้อมูลสินค้าทั้งหมด -->
@@ -309,7 +343,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </tfoot>
                     </table>
                     
-                    <?php if ($status === "ไม่พบข้อมูลการชำระเงิน"): ?>
+                    <?php if ($status_payment === "ไม่พบข้อมูลการชำระเงิน" || $status === "ชำระเงินล้มเหลว"): ?>
                         <form method="POST" action="confirmation.php">
                             <input type="hidden" name="citizen_id" value="<?= $citizen_id ?>">
                             <button type="submit" class="button-payment">ชำระเงิน</button>

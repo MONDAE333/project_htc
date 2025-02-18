@@ -1,46 +1,76 @@
-// Set new default font family and font color to mimic Bootstrap's default styling
-Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
-Chart.defaults.global.defaultFontColor = '#292b2c';
+var ctx = document.getElementById('myBarChart').getContext('2d');
+var myBarChart;
 
-// Bar Chart Example
-var ctx = document.getElementById("myBarChart");
-var myLineChart = new Chart(ctx, {
-  type: 'bar',
-  data: {
-    labels: ["January", "February", "March", "April", "May", "June"],
-    datasets: [{
-      label: "Revenue",
-      backgroundColor: "rgba(2,117,216,1)",
-      borderColor: "rgba(2,117,216,1)",
-      data: [4215, 5312, 6251, 7841, 9821, 14984],
-    }],
-  },
-  options: {
-    scales: {
-      xAxes: [{
-        time: {
-          unit: 'month'
+// สร้างกราฟแยกตามเพศ
+function showGenderChart() {
+    if (myBarChart) myBarChart.destroy(); // ลบกราฟเดิม
+
+    myBarChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: productNamesMale.concat(productNamesFemale), // รวมชื่อสินค้าจากชายและหญิง
+            datasets: [{
+                label: 'จำนวนที่ถูกจอง (ชาย)',
+                data: totalQuantitiesMale, // จำนวนที่ถูกจองจากเพศชาย
+                backgroundColor: 'rgba(54, 162, 235, 0.2)', // สีฟ้าสำหรับชาย
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }, {
+                label: 'จำนวนที่ถูกจอง (หญิง)',
+                data: totalQuantitiesFemale, // จำนวนที่ถูกจองจากเพศหญิง
+                backgroundColor: 'rgba(255, 99, 132, 0.2)', // สีชมพูสำหรับหญิง
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1
+            }, {
+                label: 'จำนวนที่ถูกจอง (อื่นๆ)',
+                data: totalQuantitiesOther, // จำนวนที่ถูกจองจากเพศอื่นๆ
+                backgroundColor: 'rgba(75, 192, 192, 0.2)', // สีเขียวสำหรับอื่นๆ
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
         },
-        gridLines: {
-          display: false
-        },
-        ticks: {
-          maxTicksLimit: 6
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
         }
-      }],
-      yAxes: [{
-        ticks: {
-          min: 0,
-          max: 15000,
-          maxTicksLimit: 5
+    });
+}
+
+
+function showNoGenderChart() {
+    console.log("Showing no gender chart...");
+    if (myBarChart) myBarChart.destroy(); // ลบกราฟเดิม
+
+    myBarChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: productNamesNoGender, // ใช้ชื่อสินค้าที่ส่งมาจาก PHP
+            datasets: [{
+                label: 'จำนวนที่ถูกจอง',
+                data: totalQuantitiesNoGender, // ใช้จำนวนสินค้าที่ถูกจองที่ส่งมาจาก PHP
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
         },
-        gridLines: {
-          display: true
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    min: 0, // บังคับให้เริ่มที่ศูนย์
+                    ticks: {
+                        stepSize: 1 // บังคับให้เพิ่มทีละ 1
+                    }
+                }
+            }
         }
-      }],
-    },
-    legend: {
-      display: false
-    }
-  }
-});
+    });
+}
+
+// เริ่มต้นแสดงกราฟที่ไม่แยกเพศ
+showNoGenderChart();

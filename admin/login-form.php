@@ -17,16 +17,23 @@ if (!empty($email) && !empty($password)) {
     if ($row != 0) {
         $user = mysqli_fetch_assoc($query);
 
+        // เช็คว่าผู้ใช้ถูกปิดใช้งานหรือไม่
+        if ($user['status'] === 'inactive') {
+            $_SESSION['message'] = 'บัญชีของคุณถูกปิดใช้งาน ไม่สามารถเข้าสู่ระบบได้';
+            header("Location: login.php");
+            exit();
+        }
+
         // เช็ค password ว่าตรงกับใน database หรือไม่
         if (password_verify($password, $user['password'])) {
             // เก็บข้อมูลเข้าสู่ session
             $_SESSION['checklogin'] = true;
             $_SESSION['id'] = $user['id'];
             $_SESSION['username'] = $user['username'];
+            $_SESSION['user_level'] = $user['user_level']; // เก็บระดับผู้ใช้ไว้ใน Session
+            
             header("Location: index.php");
-            // // ไปที่หน้า index.php หลังจากล็อกอินสำเร็จ
-            // header("Location: index.php");
-            // exit();
+            exit();
         } else {
             $_SESSION['message'] = 'อีเมลหรือรหัสผ่านของคุณไม่ถูกต้อง'; // แจ้งเตือนรหัสผ่านไม่ถูกต้อง
             header("Location: login.php");

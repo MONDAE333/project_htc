@@ -152,7 +152,7 @@ $result = $conn->query($query);
 
                         // ดึงข้อมูลขนาดและราคา
                         $query_sizes = "SELECT size, price FROM product_sizes WHERE product_id = " . $row['product_id'];
-                        $result_sizes = $conn->query($query_sizes);
+                        $result_sizes = $conn->query($query_sizes); 
 
                         echo '<label for="product-size-' . $row['product_id'] . '">เลือกไซต์และราคา:</label>';
                         echo '<select name="product_size_' . $row['product_id'] . '" id="product-size-' . $row['product_id'] . '">';
