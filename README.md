@@ -832,7 +832,6 @@ pytesseract.pytesseract.pytesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesse
 ## 📞 ข้อมูลผู้พัฒนา
 
 - **ผู้พัฒนา:** MONDAE333
-- **สถาบัน:** เทคนิคหาดใหญ่
 - **ที่อยู่ Repository:** https://github.com/MONDAE333/project_htc
 - **ประเภทโปรเจกต์:** ระบบจองอุปกรณ์การเรียน (Booking System)
 - **ถูกสร้างเมื่อ:** 18 กุมภาพันธ์ 2025
@@ -856,18 +855,9 @@ pytesseract.pytesseract.pytesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesse
 
 ---
 
-## 📞 ติดต่อ
-
-หากมีคำถามหรือข้อเสนอแนะ สามารถติดต่อได้ที่:
-
-- **GitHub Issues:** https://github.com/MONDAE333/project_htc/issues
-- **GitHub Discussion:** https://github.com/MONDAE333/project_htc/discussions
-
----
-
 ## 🎓 หมายเหตุ
 
-ระบบนี้ออกแบบมาเพื่อศึกษาและพัฒนาทักษะด้าน Web Development โปรดใช้ในสภาพแวดล้อมการพัฒนา (Development Environment) ก่อนนำไปใช้งานจริง
+ระบบนี้ออกแบบมาเพื่อศึกษาและพัฒนาทักษะด้าน Web Development ในวิชา project
 
 ---
 
